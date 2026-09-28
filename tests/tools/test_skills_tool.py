@@ -459,6 +459,19 @@ class TestSkillView:
         assert result["name"] == "knowledge-brain"
 
 
+    def test_view_serializes_yaml_date_metadata_as_iso_string(self, tmp_path):
+        with patch("tools.skills_tool.SKILLS_DIR", tmp_path):
+            _make_skill(
+                tmp_path,
+                "dated",
+                frontmatter_extra="metadata:\n  updated: 2026-03-05\n",
+            )
+            raw = skill_view("dated")
+
+        result = json.loads(raw)
+        assert result["success"] is True
+        assert result["metadata"]["updated"] == "2026-03-05"
+
 class TestSkillViewSecureSetupOnLoad:
     def test_requests_missing_required_env_and_continues(self, tmp_path, monkeypatch):
         monkeypatch.delenv("TENOR_API_KEY", raising=False)
